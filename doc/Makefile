@@ -3,7 +3,7 @@
 # E-mail: bidlom AT fit vutbr cz
 #===========================================
 # asi budete chtit prejmenovat:
-CO=projekt
+CO=doc
 
 all: $(CO).pdf
 
