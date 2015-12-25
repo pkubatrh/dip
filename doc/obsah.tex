@@ -1,5 +1,5 @@
 %=========================================================================
-% (c) Michal Bidlo, Bohuslav Kï¿½ena, 2008
+% (c) Michal Bidlo, Bohuslav Køena, 2008
 
 \chapter{FreeIPA}
 
@@ -11,10 +11,10 @@ FreeIPA also aims to provide easy management and setup of a domain controller wh
 In this chapter I will briefly introduce some of the components FreeIPA uses and describe the architecture of the resulting FreeIPA server solution.
 
 \section{Directory Server}
-FreeIPA's directory service is the is built using the 389 Directory Server\cite{ldapWeb} and is used to store various information of all of FreeIPA's components.
+FreeIPA's directory service is the foundation of the whole solution as it stores various information on behalf of all of FreeIPA's components.
 It also plays a big role in authentication and authorization using Kerberos which will be presented in the next section.
 
-The LDAP protocol\cite{ldapRFC} is used as a means of communication with the 389 DS and the data itself is stored in a Directory Information Tree (DIT) which is a tree-like data structure.
+The LDAP protocol\cite{ldapRFC} is used as a means of communication with the server and the data itself is stored in a Directory Information Tree (DIT) which is a tree-like data structure.
 
 LDAP provides several operations to use with the server\cite{ldapRFC}:
 
@@ -25,9 +25,23 @@ LDAP provides several operations to use with the server\cite{ldapRFC}:
     \item \textbf{extended operations:} New operations that are not a part of the original protocol.
 \end{itemize}
 
+The actual LDAP compatible server is implemented using the 389 Directory Server project\cite{ldapWeb}.
 % TODO: ACLs
 
 \section{Kerberos}
+Kerberos\cite{kerbRFC} is a network authentication protocol that uses symmetric encryption using a pre-shared key to authenticate the client to a network service (and vice versa) via an insecure connection using a trusted third party service called a Key Distribution Center (KDC). \\
+The resulting communication is secure because no secret keys are transported over the network in plaintext format as the KDC already contains a database of credentials for users and services in the Kerberos realm. \\
+The process of authenticating the user to a network service is as follows:
+\begin{enumerate}
+    \item The user sends his principal name (an unique identifier) to the KDC via a plaintext request.
+    \item The KDC then checks the database to make sure the user exists and sends back a randomly generated session key to be used to encrypt communication with another service called a Ticket-Granting Service (TGS) encrypted with the user's secret key.
+    \item The KDC also generates a set of credentials called a Ticket-Granting Ticket (TGT) which includes the previously generated session key and is encrypted by the secret key of the TGS.
+    \item After recieving the first message the client decrypts it using his secret key. This is the only time the user's key is actually used. The TGT which the client can't decrypt himself is saved in a cache on the client's side to be used later to setup a session with the TGS. At this point the user is authenticated to the Kerberos realm and doesn't have to input his secret key again for a set amount of time (commonly 10-24 hours).
+    \item When the user wants to authenticate agains a service in the Kerberos realm he just has to ask the TGS to send him a ticket. The user then authenticates to the chosen service using this ticket without the need for his secret key.
+\end{enumerate}
+
+As the security of the Kerberos protocol is partly based on the time stamps of tickets, all of the clients and services in the realm have to be properly synchronized time-wise. To achieve this goal the Network Time Protocol is used in the FreeIPA project. \\
+FreeIPA's KDC is implemented using the MIT Kerberos\cite{kerbWeb} open source software and FreeIPA also provides its own KDC data backend called ipa-kdb which is used to both read and write user information to FreeIPA's LDAP directory service\cite{kerbIpa}.
 \section{DNS}
 \section{Dogtag}
 \section{FreeIPA Architecture}
