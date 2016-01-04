@@ -16,7 +16,7 @@
    id="svg2"
    version="1.1"
    inkscape:version="0.91 r13725"
-   sodipodi:docname="ipa-infrastructure.svg"
+   sodipodi:docname="ipa-architecture.svg"
    inkscape:export-filename="/NotBackedUp/dlackey/rhel7/IdM_Linux_Domain_Administration_Guide/trunk/7-trunk/en-US/images/ipa-server.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90"
@@ -31,10 +31,10 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.1092284"
-     inkscape:cx="185.67146"
+     inkscape:cx="42.328574"
      inkscape:cy="180.11239"
      inkscape:document-units="px"
-     inkscape:current-layer="layer3"
+     inkscape:current-layer="layer1"
      showgrid="false"
      inkscape:window-width="1920"
      inkscape:window-height="922"
@@ -528,6 +528,34 @@
        fx="22.315165"
        fy="28.67547"
        r="14.494606" />
+    <marker
+       inkscape:stockid="TriangleInSg"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="marker8275-4-9-72-5-0"
+       style="overflow:visible">
+      <path
+         id="path8277-0-2-5-6-1"
+         d="m 5.77,0 -8.65,5 0,-10 8.65,5 z"
+         style="fill:#a70000;fill-opacity:1;fill-rule:evenodd;stroke:#a70000;stroke-width:1pt;stroke-opacity:1;marker-start:none"
+         transform="scale(-0.2,-0.2)"
+         inkscape:connector-curvature="0" />
+    </marker>
+    <marker
+       inkscape:stockid="TriangleInSg"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="marker12341"
+       style="overflow:visible">
+      <path
+         id="path12343"
+         d="m 5.77,0 -8.65,5 0,-10 8.65,5 z"
+         style="fill:#a70000;fill-opacity:1;fill-rule:evenodd;stroke:#a70000;stroke-width:1pt;stroke-opacity:1;marker-start:none"
+         transform="scale(-0.2,-0.2)"
+         inkscape:connector-curvature="0" />
+    </marker>
   </defs>
   <metadata
      id="metadata7">
@@ -537,7 +565,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
       <cc:Work
          rdf:about="">
@@ -1037,24 +1065,6 @@
        inkscape:export-filename="/home/charmer/tmp/ipa_server.png"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90" />
-    <path
-       id="path5165-8-6-86-86"
-       style="color:#000000;display:inline;overflow:visible;visibility:visible;fill:none;stroke:#a70000;stroke-width:4.4000001;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker:none;marker-start:url(#marker8275-4-9-72-0);enable-background:accumulate"
-       d="M 326.92088,716.1531 285.0789,716.04542"
-       sodipodi:nodetypes="cc"
-       inkscape:connector-curvature="0"
-       inkscape:export-filename="/home/charmer/tmp/ipa_server.png"
-       inkscape:export-xdpi="90"
-       inkscape:export-ydpi="90" />
-    <path
-       inkscape:connector-curvature="0"
-       sodipodi:nodetypes="cc"
-       d="m 279.80716,716.03185 22.80164,0.0587"
-       style="color:#000000;display:inline;overflow:visible;visibility:visible;fill:none;stroke:#a70000;stroke-width:4.4000001;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker:none;marker-start:url(#marker8275-4-9-72-0);enable-background:accumulate"
-       id="path5167-3-1-8-2"
-       inkscape:export-filename="/home/charmer/tmp/ipa_server.png"
-       inkscape:export-xdpi="90"
-       inkscape:export-ydpi="90" />
     <text
        sodipodi:linespacing="125%"
        x="315.1312"
@@ -1069,6 +1079,24 @@
          x="315.1312"
          y="461.18369"
          id="tspan4490-1-0-1">FreeIPA</tspan></text>
+    <path
+       id="path5165-8-6-86-6-7"
+       style="color:#000000;display:inline;overflow:visible;visibility:visible;fill:none;stroke:#a70000;stroke-width:4.4000001;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker:none;marker-start:url(#marker8275-4-9-72-5-0);enable-background:accumulate"
+       d="m 397.45609,675.14493 0,-20.18309"
+       sodipodi:nodetypes="cc"
+       inkscape:connector-curvature="0"
+       inkscape:export-filename="/home/charmer/tmp/ipa_server.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
+    <path
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="cc"
+       d="m 397.45609,652.41894 0,10.9987"
+       style="color:#000000;display:inline;overflow:visible;visibility:visible;fill:none;stroke:#a70000;stroke-width:4.4000001;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;marker:none;marker-start:url(#marker8275-4-9-72-5-0);enable-background:accumulate"
+       id="path5167-3-1-8-0-7"
+       inkscape:export-filename="/home/charmer/tmp/ipa_server.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90" />
   </g>
   <g
      inkscape:groupmode="layer"
