@@ -134,6 +134,63 @@ One can see that there are some similarities to callbacks of ipalib's extensions
 differing only in when they are called. While pre and post callbacks are bound to a specific method of a specific command object (eg. before or after executing a user-add command),
 the pre and post operations plug-ins are bound to an LDAP operation and as such are run much more frequently.
 \chapter{Active Directory}
+\section{Structure and Components}
+This section is based on the official documentation for Active Directory\cite{ADoverview}.\\
+AD is a distributed directory service used by the Microsoft Windows Server operating systems and, while similar in the components used, is quite different to the FreeIPA project.\\
+Objects located in a AD organized network are structured into a logical structure, the basis of which form forests and domains. \\
+Forests are the security boundaries of the logical structure and can be structured to provide data and service autonomy and isolation, removing the dependency on physical topology. \\
+Each forest is able to hold several domains. These domains can be structured to provide data and service autonomy but not isolation as to allow for replication optimalization.
+This logical structure can also be used to control access to data for each domain seperately.
+
+\begin{figure}[!ht]
+    \centering
+        \includegraphics[scale=0.6]{fig/AD-forest}
+    \caption{An Active Directory forest and its domains\cite{ADoverview}}
+    \label{fig:adForest}
+\end{figure}
+
+Each domain is connected to one or more domain controllers. A domain controller is a service that stores directory data and manages user and domain interactions.
+Each domain controller consists of a schema, which defines objects and attributes that can be store in the directory, a data store, which managaes the storing and retrieving of data, and the actual database.
+The data store uses a number of interfaces to access stored data as can be seen in figure \ref{fig:adController}, one of which is the same protocol as the 389DS uses in FreeIPA -- LDAP.
+
+\begin{figure}[!ht]
+    \centering
+        \includegraphics[scale=0.6]{fig/AD-controller}
+    \caption{Active Directory Domain Controller\cite{ADoverview}}
+    \label{fig:adController}
+\end{figure}
+
+Active Directory also uses, similarly to FreeIPA, DNS as its domain controller location mechanism and Kerberos for user authentication.
+
+\FloatBarrier
+\section{Notification Mechanisms}
+As AD does not by itself provide a complete notification system, this section describes mechanisms contained in AD and Windows operating systems in general that can be used to send notifications between applications. \\
+The following mechanisms are available for users of AD directory service:
+
+\begin{description}
+    \item[Change Notifications]\hfill \\
+        This mechanism allows for a client to register with a domain controller to recieve notifications for changes in the AD domain service. The notification control is specified in a LDAP asynchronou search
+        operation. \\
+        The user can define a number of search parameters: scope, to monitor just the object or its immediate children, filter, which allows for object filtering and
+        attributes, a list of the changed object's attributes that will be returned\cite{ADtrack}.
+    \item[Polling]\hfill \\
+        The second notification mechanism available in AD is directly polling the AD directory service for changes.
+        There are two types of polling available. Polling using Directory Synchronisation control, which is an LDAP server extension that allows to check for changes since a previous state,
+        while the other type -- querying using a special uSNChanged attribute -- is used when Directory Synchronisation is unavailable or inefficient\cite{ADtrack}.
+\end{description}
+
+These mechanisms are, however, primarily used to mantain consistency of data between the AD directory service and other applications\cite{ADtrack}.
+As such there is one additional mechanism that can be used not only with AD, but generally with any application running on a Windows operating system and that is Event Tracing (ET)\cite{ADtrace}. \\
+ET is a mechanism that allows for application defined events to be logged into a log file and optionally recieved by other applications in real time.
+ET has three major components, as can be seen in figure \ref{fig:adTracing}: controllers, that control the ET sessions, providers that write events into a ET session and consumers which consume one or more event sessions either directly or from a log file.
+
+\begin{figure}[!ht]
+    \centering
+        \includegraphics[scale=0.6]{fig/ad-tracing}
+    \caption{Event Tracing model\cite{ADtrace}}
+    \label{fig:adTracing}
+\end{figure}
+
 \chapter{Analyze}
 \chapter{Conclusion}
 
