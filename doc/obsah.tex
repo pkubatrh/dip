@@ -3,7 +3,19 @@
 
 \chapter{Introduction}
 
+Ever since the humans inabited the Earth, one of the most important things was to know who they're dealing with using the identity of their partner. Before the spoken word, their identity mainly consisted of how they looked, sounded or maybe even smelled to others.
+With the development of languages came names, like ``John Smith'' or ``Maria Garcia'' which, given the tendecy of early populations being small, were sufficient as a form of identity. \\
+However, with the dawn of the industrial age people would be moving to cities, creating larger and larger populations and with the creation of factories, employing an increasing number of people, it was important to somehow store and manage
+their identities and duties. At first, this was done using paper documents stored somewhere in the factory, but this solution proved to be increasingly difficult as sorting and searching through these documents had to be done manually and this took a lot of time. \\
+With the advent of computers, this problem was solved by storing the identities of employees into databases or directory servers, from which they could be retrieved easily if needed.
+As the factories turned into companies, spanning multiple buildings, countries, or even continents, and computers becoming smaller, more powerful and generally available, it was important to manage stored identities
+and control which parts of the system the company's employees could access given their role using information management software. As a single unwanted change in this identity management could even prove fatal to the whole network, one of the most important parts a identity management system are the notifications of such changes.\\
+The main topic of this thesis are these notification systems and mechanisms in identity management software, specifically their potential implementation in the FreeIPA project.
+Chapter \ref{chp:freeipa} will be introducing the reader to the FreeIPA project and its components, while chapter \ref{chp:ad} compares FreeIPA to Microsoft's Active Directory with emphasis on notification mechanisms.
+Lastly chapter \ref{chp:anal} will be how to properly introduce a notification sending mechanism into the FreeIPA project.
+
 \chapter{FreeIPA}
+\label{chp:freeipa}
 
 FreeIPA (where IPA stands for Identity, Policy and Audit) is an open-source security management solution sponsored by Red Hat aimed primarily at Linux and Unix machines\cite{ipaWeb}.
 
@@ -133,7 +145,10 @@ There are several types of plug-ins that can be used when trying to extend the d
 One can see that there are some similarities to callbacks of ipalib's extensions, especially the way of calling pre and post operations plug-ins is basically the same as pre and post callbacks
 differing only in when they are called. While pre and post callbacks are bound to a specific method of a specific command object (eg. before or after executing a user-add command),
 the pre and post operations plug-ins are bound to an LDAP operation and as such are run much more frequently.
+
 \chapter{Active Directory}
+\label{chp:ad}
+
 \section{Structure and Components}
 This section is based on the official documentation for Active Directory\cite{ADoverview}.\\
 AD is a distributed directory service used by the Microsoft Windows Server operating systems and, while similar in the components used, is quite different to the FreeIPA project.\\
@@ -192,6 +207,9 @@ ET has three major components, as can be seen in figure \ref{fig:adTracing}: con
 \end{figure}
 
 \chapter{Analyze}
+
+\label{chp:anal}
+
 \chapter{Conclusion}
 
 %=========================================================================
