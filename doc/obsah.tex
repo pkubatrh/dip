@@ -12,7 +12,7 @@ As the factories turned into companies, spanning multiple buildings, countries, 
 and control which parts of the system the company's employees could access given their role using information management software. As a single unwanted change in this identity management could even prove fatal to the whole network, one of the most important parts a identity management system are the notifications of such changes.\\
 The main topic of this thesis are these notification systems and mechanisms in identity management software, specifically their potential implementation in the FreeIPA project.
 Chapter \ref{chp:freeipa} will be introducing the reader to the FreeIPA project and its components, while chapter \ref{chp:ad} compares FreeIPA to Microsoft's Active Directory with emphasis on notification mechanisms.
-Lastly chapter \ref{chp:anal} will be how to properly introduce a notification sending mechanism into the FreeIPA project.
+Chapter \ref{chp:anal} will be looking at the proposed use cases for the notification system and, last but not least, chapter \ref{chp:appDesign} will tackle the issues of notification sending function placement and method of transfer, as well as providing an early design of the system.
 
 \chapter{FreeIPA}
 \label{chp:freeipa}
@@ -22,7 +22,7 @@ FreeIPA (where IPA stands for Identity, Policy and Audit) is an open-source secu
 The project itself combines a number of various existing open-source technologies to achieve the goal of providing centralized authentication and authorization, as well as storing important account information like users or group memberships.
 FreeIPA also aims to provide easy management and setup of a domain controller which would otherwise be very difficult by using the same components on your own.
 
-In this chapter I will briefly introduce some of the components FreeIPA uses and describe the architecture of the resulting FreeIPA server solution.
+In this chapter will briefly introduce some of the components FreeIPA uses and describe the architecture of the resulting FreeIPA server solution, including the posibilities of extending the project.
 
 \section{Directory Server}
 FreeIPA's directory service is the foundation of the project as it stores various information on behalf of all of FreeIPA's components.
@@ -91,6 +91,8 @@ The name space is divided into zones starting at the root of the tree structure 
 These zones can contain one or several domains, each domain served by one or several name servers, and can be divided into additional zones if deemed necessary. \\
 The DNS server in FreeIPA uses an enhanced BIND name server which allows FreeIPA to store data into an LDAP directory\cite{dnsIpa}.
 However using FreeIPA's integrated DNS server is optional and as such the project can be used with a different third party DNS server if so desired.
+
+\FloatBarrier
 \section{FreeIPA Architecture}
 While the most important components of the FreeIPA project have been described in previous sections, a number of components are still missing for the infrastructure to be complete.
 
@@ -101,9 +103,9 @@ While the most important components of the FreeIPA project have been described i
     \label{fig:ipaHigh}
 \end{figure}
 
-To start with, FreeIPA can optionally use the Dogtag project\cite{certWeb} as an integrated Public Key Infrastructure that signs and publishes certificates for hosts and services inside the domain. \\
-Secondly, the Apache Web Server is used to provide web based access to the management APIs using the XML-RPC and JSON-RPC APIs as well as to serve the web interface to the clients. \\
-And last but not least, as one of the most important additions to the project, FreeIPA's ipalib framework is used together with the Command Line and Web based interfaces to administer the FreeIPA domain. \\
+To start with, FreeIPA can optionally use the \textbf{Dogtag project}\cite{certWeb} as an integrated Public Key Infrastructure that signs and publishes certificates for hosts and services inside the domain. \\
+Secondly, the \textbf{Apache Web Server} is used to provide web based access to the management APIs using the XML-RPC and JSON-RPC APIs as well as to serve the web interface to the clients. \\
+And last but not least, as one of the most important additions to the project, FreeIPA's \textbf{ipalib} framework is used together with the Command Line and Web based interfaces to administer the FreeIPA domain. \\
 A high level and a detailed representation of the resulting infrastructure can be found in figures \ref{fig:ipaHigh} and \ref{fig:ipaDetail}, respectively.
 
 \begin{figure}[!ht]
@@ -118,6 +120,7 @@ This framework is generally used to connect the isolated components into the Fre
 adding Host Based Access Control rules for even beter access management.
 
 \section{Extending FreeIPA}
+\label{sec:ipaExt}
 
 \subsection{Extending the Framework}
 As previously stated, the ipalib framework is highly modular and extensible with a couple of different ways to add new (or modify current) functionality\cite{extIpa}:\\
@@ -153,8 +156,8 @@ the pre and post operations plug-ins are bound to an LDAP operation and as such 
 This section is based on the official documentation for Active Directory\cite{ADoverview}.\\
 AD is a distributed directory service used by the Microsoft Windows Server operating systems and, while similar in the components used, is quite different to the FreeIPA project.\\
 Objects located in a AD organized network are structured into a logical structure, the basis of which form forests and domains. \\
-Forests are the security boundaries of the logical structure and can be structured to provide data and service autonomy and isolation, removing the dependency on physical topology. \\
-Each forest is able to hold several domains. These domains can be structured to provide data and service autonomy but not isolation as to allow for replication optimalization.
+\textbf{Forests} are the security boundaries of the logical structure and can be structured to provide data and service autonomy and isolation, removing the dependency on physical topology. \\
+Each forest is able to hold several \textbf{domains}. These domains can be structured to provide data and service autonomy but not isolation as to allow for replication optimalization.
 This logical structure can also be used to control access to data for each domain seperately.
 
 \begin{figure}[!ht]
@@ -164,8 +167,8 @@ This logical structure can also be used to control access to data for each domai
     \label{fig:adForest}
 \end{figure}
 
-Each domain is connected to one or more domain controllers. A domain controller is a service that stores directory data and manages user and domain interactions.
-Each domain controller consists of a schema, which defines objects and attributes that can be store in the directory, a data store, which managaes the storing and retrieving of data, and the actual database.
+Each domain is connected to one or more \textbf{domain controllers}. A domain controller is a service that stores directory data and manages user and domain interactions.
+Each domain controller consists of a \textbf{schema}, which defines objects and attributes that can be store in the directory, a \textbf{data store}, which managaes the storing and retrieving of data, and the actual \textbf{database}.
 The data store uses a number of interfaces to access stored data as can be seen in figure \ref{fig:adController}, one of which is the same protocol as the 389DS uses in FreeIPA -- LDAP.
 
 \begin{figure}[!ht]
@@ -179,6 +182,7 @@ Active Directory also uses, similarly to FreeIPA, DNS as its domain controller l
 
 \FloatBarrier
 \section{Notification Mechanisms}
+\label{sec:adNotif}
 As AD does not by itself provide a complete notification system, this section describes mechanisms contained in AD and Windows operating systems in general that can be used to send notifications between applications. \\
 The following mechanisms are available for users of AD directory service:
 
@@ -195,20 +199,96 @@ The following mechanisms are available for users of AD directory service:
 \end{description}
 
 These mechanisms are, however, primarily used to mantain consistency of data between the AD directory service and other applications\cite{ADtrack}.
-As such there is one additional mechanism that can be used not only with AD, but generally with any application running on a Windows operating system and that is Event Tracing (ET)\cite{ADtrace}. \\
+As such there is one additional mechanism that can be used not only with AD, but generally with any application running on a Windows operating system and that is \textbf{Event Tracing}(ET)\cite{ADtrace}. \\
 ET is a mechanism that allows for application defined events to be logged into a log file and optionally recieved by other applications in real time.
-ET has three major components, as can be seen in figure \ref{fig:adTracing}: controllers, that control the ET sessions, providers that write events into a ET session and consumers which consume one or more event sessions either directly or from a log file.
+ET has three major components:%, as can be seen in figure \ref{fig:adTracing}:
+\textbf{controllers}, that control the ET sessions, \textbf{providers} that write events into a ET session and \textbf{consumers} which consume one or more event sessions either directly or from a log file.
 
-\begin{figure}[!ht]
-    \centering
-        \includegraphics[scale=0.6]{fig/ad-tracing}
-    \caption{Event Tracing model\cite{ADtrace}}
-    \label{fig:adTracing}
-\end{figure}
+%\begin{figure}[!ht]
+%    \centering
+%        \includegraphics[scale=0.6]{fig/ad-tracing}
+%    \caption{Event Tracing model\cite{ADtrace}}
+%    \label{fig:adTracing}
+%\end{figure}
 
-\chapter{Analyze}
-
+\chapter{Use Case Analysis}
 \label{chp:anal}
+In this chapter the author analyses potential use cases of the notification system based on the research of both Active Directory and FreeIPA projects.
+
+\section{Active Directory Use Cases}
+As mentioned in section \ref{sec:adNotif} notification systems integrated in Active Directory (change notifications and polling) have generally only one use and that is \textbf{keeping data integrity} between applications that use a copy of data
+stored in the directory server and the actual directory server. Even though this use case is not the primary use of FreeIPA's notification system, similar behaviour could be easily introduced
+by sending changed data with every generated notification. \\
+When it comes to the general event tracing mechanism of the Microsoft Windows Server, it is mainly used for \textbf{logging purposes} by a myriad of applications running on the server.
+One of the most interesting of these logs is the \textbf{security event log}. This session logs various security related issues such as every successful/failed login attempts, group membership changes
+or failed access attempts to secured objects. \\
+Additionaly, while researching Active Directory's notification mechanisms a specific use case for user written scripts came up repeatedly and that is \textbf{password expiry notifications}.
+As AD notifies the user of this act only as he tries to log in with his expired password, said scripts monitored the password expiry time by using a polling mechanism for the expiry attribute and notified the user directly via email.
+As such notification on password expiration should be one of the primary use cases of FreeIPA's notification system.
+However, as being notified on every login/logout or group membership change would be unnecessary and maybe even bothersome, the system should instead notify on action with possibly malicious intent,
+eg. \textbf{repeating login attempts} or \textbf{enrolling of a user into a highly priviledged group} (admins, sales, etc.).
+\section{FreeIPA Use Cases}
+This section describes the use cases as suggested by FreeIPA's community. \\
+Some of the use cases proposed by the community in the project's specification intersect with use cases resulting from the analysis of Active Directory's use cases (user password expiration, group membership changes and repeating login attempts) in the previous section.
+Use cases not yet mentioned are as follows:
+\begin{description}
+    \item[User enrollment, deletion, edit]\hfill \\
+        User enrollment (and generally user-based operations) are one of the most frequent and thus important events in a identitz management software.
+        As such a notifications of such changes sent possibly via email could be beneficial to some groups (HR, sales). \\
+        Additionaly, using this notification system, an automated system could help setup, or delete, user related environments in the system (eg. home folders) on user creation or deletion, respectively.
+    \item[Certificate creation/expiry]\hfill \\
+        As the Certmonger client-side daemon already takes care of monitoring certificate expiry and optionally their renewal, this use case would be mainly about sending a notice to the concerned groups
+        about the impending situation. However, in environments not running Certmonger on the client machines, it could be used to connect to another automated renewal system.
+    \item[DNS list synchronization]\hfill \\
+        Another use for notifications would be synchronizing the reslov.conf file containing the list of current DNS servers with the list of FreeIPA replicas with a running DNS service.
+\end{description}
+
+\chapter{Application Design}
+\label{chp:appDesign}
+In this chapter the author tackles one of the most difficult questions to answer -- from where and through what means FreeIPA's notifications should be sent, resulting in the basis of a design for the actual notifiaction system.
+\section{Sender Placement}
+Given the current extensibility of the project as described in section \ref{sec:ipaExt},
+there are three possible general placements that can be used:
+
+\begin{enumerate}
+    \item Notifications sent directly from the 389DS would allow for the notifications to be delivered even when using an LDAP client different from the FreeIPA client which is apparently quite common.
+    However, adding code directly to the directory server (using the plug-in system) might cause drops in performance.
+    \item Notification senders located in the ipalib framework would allow for more precise calls of notification sending methods and possibly better performance.
+    This approach would also provide the user with the ability to send notifications that would not be limited to changes in the 389DS.
+    \item A hybrid approach that combines the previous two approaches and thus adds senders to both the 389DS and the ipalib framework for different operations depending on the severity of hits on performance.
+\end{enumerate}
+
+While there are no ready-made recievers contained in Active Directory that could help with the choice of approach, it still offers valuable information on what properties the receivers (and senders) should have:
+
+\begin{description}
+    \item[Generalization]\hfill \\
+        All of AD's available notification mechanisms use a general user-defined notification reciever.
+        This allows the user to have control over how the notifications will be processed and responded to.
+    \item[Variety]\hfill \\
+        AD offers the user a number of different ways of sending notifications. As such the user can decide if he wants to recieve notifications any time an attribute is changed,
+        or if he wants to check for changes himself periodically.
+\end{description}
+
+Given the analysis of AD's notification mechanisms, the author currently opts for the \textbf{hybrid approach} with a receiver defined by the user.
+However, further testing will be needed to see if this approach is possible when it comes to hits in performance as a result of introducing the notification plug-ins.
+
+\section{Method of Transfer}
+
+There are many different protocols that can be used for the actual notification transfer, like the Advanced Message Queuing Protocol or Fedora's own Fedora Infrastructure Message Bus,
+however the \textbf{D-Bus message system} has been chosen by the author as the method of transfer.\\
+The D-Bus message system is a communication mechanism between processes running on the same host that is present on nearly any Linux operating system,
+which is one of the reason thats make it so attractive to be used as the transport medium for notifications in FreeIPA.
+The architecture of the D-Bus system is quite similar to Microsoft's Event Tracing, with the difference of D-Bus not logging sent messages in a file.
+The architecture consists of \textbf{clients}, who are each sending and recieving messages and a \textbf{dbus daemon} running the actual bus.
+D-Bus messages are transported over the bus by the dbus daemon, to which any number of processes can be connected at any given time\cite{dbusWeb}. \\
+D-Bus also has APIs (bindings) written in a number of languages, including the \textbf{C and Python languages} used by 389DS and ipalib framework, respectively, for both the sending and recieving side.
+Together with the bus being able to send messages from multiple sources, to multiple recievers, this allows D-Bus to be used with any of previously mentioned sender placements, including the hybrid one. \\
+There were some concerns that by using D-Bus, any change to the data sent to the recievers would mean the need to rewrite the reciever to accomodate to the changes made.
+However, using the Python bindings and its argument type discovery function, it should be possible for the reciever to work even after the changes have been introduced to the senders.
+In case the reciever is written in another lower-level binding, the reciever will have to be editted accordingly. \\
+To accomodate for some of the use cases proposed in chapter \ref{chp:anal}, a \textbf{lightweight monitoring daemon} will designed and implemented to be used to check the expiry date of users' passwords and certificates
+and send notifications to the bus when necessary. \\
+Figure \ref{fig:arch} shows the resulting notification system architecture using D-Bus as the method of transfer.
 
 \chapter{Conclusion}
 
