@@ -1,5 +1,5 @@
 %=========================================================================
-% (c) Michal Bidlo, Bohuslav Køena, 2008
+% (c) Michal Bidlo, Bohuslav K?ena, 2008
 
 \chapter{Introduction}
 
@@ -17,7 +17,7 @@ Chapter \ref{chp:anal} will be looking at the proposed use cases for the notific
 \chapter{FreeIPA}
 \label{chp:freeipa}
 
-FreeIPA (where IPA stands for Identity, Policy and Audit) is an open-source security management solution sponsored by Red Hat aimed primarily at Linux and Unix machines\cite{ipaWeb}.
+FreeIPA (where IPA stands for Identity, Policy and Audit) is an open-source security management solution sponsored by Red Hat aimed primarily at Linux and Unix machines \cite{ipaWeb}.
 
 The project itself combines a number of various existing open-source technologies to achieve the goal of providing centralized authentication and authorization, as well as storing important account information like users or group memberships.
 FreeIPA also aims to provide easy management and setup of a domain controller which would otherwise be very difficult by using the same components on your own.
@@ -28,7 +28,7 @@ In this chapter will briefly introduce some of the components FreeIPA uses and d
 FreeIPA's directory service is the foundation of the project as it stores various information on behalf of all of FreeIPA's components.
 It also plays a big role in authentication and authorization using Kerberos which will be presented in the next section.
 
-The LDAP protocol\cite{ldapRFC} is used as a means of communication with the server and the data itself is stored in a Directory Information Tree (DIT) which is a tree-like data structure.
+The LDAP protocol \cite{ldapRFC} is used as a means of communication with the server and the data itself is stored in a Directory Information Tree (DIT) which is a tree-like data structure.
 An example of a DIT structure can be seen in figure \ref{fig:dit}.
 
 \begin{figure}[!ht]
@@ -38,7 +38,7 @@ An example of a DIT structure can be seen in figure \ref{fig:dit}.
     \label{fig:dit}
 \end{figure}
 
-LDAP provides several operations to use with the server\cite{ldapRFC}:
+LDAP provides several operations to use with the server \cite{ldapRFC}:
 
 \begin{itemize}
     \item \textbf{add, delete, modify:} These operations add, remove and modify the data contained in the DIT.
@@ -47,11 +47,11 @@ LDAP provides several operations to use with the server\cite{ldapRFC}:
     \item \textbf{extended operations:} New operations that are not a part of the original protocol.
 \end{itemize}
 
-The actual LDAP compatible server contained in FreeIPA is implemented using the 389 Directory Server project\cite{ldapWeb}.
+The actual LDAP compatible server contained in FreeIPA is implemented using the 389 Directory Server project \cite{ldapWeb}.
 % TODO: ACLs
 
 \section{Kerberos}
-Kerberos\cite{kerbRFC} is a network authentication protocol that uses symmetric encryption using a pre-shared key to authenticate the client to a network service (and vice versa) via an insecure connection using a trusted third party service called a Key Distribution Center (KDC). \\
+Kerberos \cite{kerbRFC} is a network authentication protocol that uses symmetric encryption using a pre-shared key to authenticate the client to a network service (and vice versa) via an insecure connection using a trusted third party service called a Key Distribution Center (KDC). \\
 The resulting communication is secure because no secret keys are transported over the network in plaintext format as the KDC already contains a database of credentials for users and services in the Kerberos realm. \\
 
 \begin{figure}[!ht]
@@ -73,10 +73,10 @@ The process of authenticating the user to a network service is shown in figure \
 
 As the security of the Kerberos protocol is partly based on the time stamps of tickets, all of the clients and services in the realm have to be properly synchronized time-wise.
 To achieve this goal the Network Time Protocol can be used in the FreeIPA project. \\
-FreeIPA's KDC is implemented using the MIT Kerberos\cite{kerbWeb} open source software and FreeIPA also provides its own KDC data backend called ipa-kdb which is used to both read and write user information to FreeIPA's LDAP directory service\cite{kerbIpa}.
+FreeIPA's KDC is implemented using the MIT Kerberos \cite{kerbWeb} open source software and FreeIPA also provides its own KDC data backend called ipa-kdb which is used to both read and write user information to FreeIPA's LDAP directory service \cite{kerbIpa}.
 \section{DNS}
 Even though it would be possible to access network services located in a FreeIPA domain directly using their IP addresses, it is much more easier to do so using domain names. \\
-The Domain Name System (DNS)\cite{dnsRFC} is distributed naming system, that translates domain names, which can be easily memorized by humans, into IP addresses using special name servers.
+The Domain Name System (DNS) \cite{dnsRFC} is distributed naming system, that translates domain names, which can be easily memorized by humans, into IP addresses using special name servers.
 As such if one wants to access a network service or a webpage he doesn't have to remember its IP address, only the IP address of the name server (which is stored localy on the client machine) and the domain name of the service/webpage. \\
 The domain name space resembles a tree structure, each node having a label that designates a part of its domain name, while the full domain name of the node can be built by concatenating this label with the domain name of its parent node. \\
 The name space is divided into zones starting at the root of the tree structure with child nodes of the root node called top-level domains (TLD).
@@ -89,7 +89,7 @@ The name space is divided into zones starting at the root of the tree structure 
 \end{figure}
 
 These zones can contain one or several domains, each domain served by one or several name servers, and can be divided into additional zones if deemed necessary. \\
-The DNS server in FreeIPA uses an enhanced BIND name server which allows FreeIPA to store data into an LDAP directory\cite{dnsIpa}.
+The DNS server in FreeIPA uses an enhanced BIND name server which allows FreeIPA to store data into an LDAP directory \cite{dnsIpa}.
 However using FreeIPA's integrated DNS server is optional and as such the project can be used with a different third party DNS server if so desired.
 
 \FloatBarrier
@@ -103,7 +103,7 @@ While the most important components of the FreeIPA project have been described i
     \label{fig:ipaHigh}
 \end{figure}
 
-To start with, FreeIPA can optionally use the \textbf{Dogtag project}\cite{certWeb} as an integrated Public Key Infrastructure that signs and publishes certificates for hosts and services inside the domain. \\
+To start with, FreeIPA can optionally use the \textbf{Dogtag project} \cite{certWeb} as an integrated Public Key Infrastructure that signs and publishes certificates for hosts and services inside the domain. \\
 Secondly, the \textbf{Apache Web Server} is used to provide web based access to the management APIs using the XML-RPC and JSON-RPC APIs as well as to serve the web interface to the clients. \\
 And last but not least, as one of the most important additions to the project, FreeIPA's \textbf{ipalib} framework is used together with the Command Line and Web based interfaces to administer the FreeIPA domain. \\
 A high level and a detailed representation of the resulting infrastructure can be found in figures \ref{fig:ipaHigh} and \ref{fig:ipaDetail}, respectively.
@@ -123,7 +123,7 @@ adding Host Based Access Control rules for even beter access management.
 \label{sec:ipaExt}
 
 \subsection{Extending the Framework}
-As previously stated, the ipalib framework is highly modular and extensible with a couple of different ways to add new (or modify current) functionality\cite{extIpa}:\\
+As previously stated, the ipalib framework is highly modular and extensible with a couple of different ways to add new (or modify current) functionality \cite{extIpa}:\\
 First off one can directly extend existing objects of the ipalib framework. These objects are mainly responsible for executing various commands sent using the XML and JSON APIs
 and as such extending or modifying the objects, eg. adding a parameter or rewriting an object's label, can alter the default behaviour of those commands. \\
 The second way is to extend methods of an object stored in the LDAP database by adding callbacks to these methods.
@@ -136,7 +136,7 @@ Callbacks are user-defined functions that are called at various stages of exectu
 \end{description}
 \subsection{Extending the Directory Server}
 The 389 DS used in the FreeIPA project has only one way of creating extensions and that is using server plug-ins.
-There are several types of plug-ins that can be used when trying to extend the directory server\cite{extLDAP}:
+There are several types of plug-ins that can be used when trying to extend the directory server \cite{extLDAP}:
 \begin{description}
     \item[Pre operation]\hfill \\A pre operation plug-in is executed before starting the LDAP operation. Mostly used for data validation.
     \item[Post operation]\hfill \\A post operation plug-in is executed after performing the LDAP operation. Can be used for notifications.
@@ -153,7 +153,7 @@ the pre and post operations plug-ins are bound to an LDAP operation and as such 
 \label{chp:ad}
 
 \section{Structure and Components}
-This section is based on the official documentation for Active Directory\cite{ADoverview}.\\
+This section is based on the official documentation for Active Directory \cite{ADoverview}.\\
 AD is a distributed directory service used by the Microsoft Windows Server operating systems and, while similar in the components used, is quite different to the FreeIPA project.\\
 Objects located in a AD organized network are structured into a logical structure, the basis of which form forests and domains. \\
 \textbf{Forests} are the security boundaries of the logical structure and can be structured to provide data and service autonomy and isolation, removing the dependency on physical topology. \\
@@ -163,7 +163,7 @@ This logical structure can also be used to control access to data for each domai
 \begin{figure}[!ht]
     \centering
         \includegraphics[scale=0.6]{fig/AD-forest}
-    \caption{An Active Directory forest and its domains\cite{ADoverview}}
+    \caption{An Active Directory forest and its domains \cite{ADoverview}}
     \label{fig:adForest}
 \end{figure}
 
@@ -174,7 +174,7 @@ The data store uses a number of interfaces to access stored data as can be seen 
 \begin{figure}[!ht]
     \centering
         \includegraphics[scale=0.6]{fig/AD-controller}
-    \caption{Active Directory Domain Controller\cite{ADoverview}}
+    \caption{Active Directory Domain Controller \cite{ADoverview}}
     \label{fig:adController}
 \end{figure}
 
@@ -191,15 +191,15 @@ The following mechanisms are available for users of AD directory service:
         This mechanism allows for a client to register with a domain controller to recieve notifications for changes in the AD domain service. The notification control is specified in a LDAP asynchronou search
         operation. \\
         The user can define a number of search parameters: scope, to monitor just the object or its immediate children, filter, which allows for object filtering and
-        attributes, a list of the changed object's attributes that will be returned\cite{ADtrack}.
+        attributes, a list of the changed object's attributes that will be returned \cite{ADtrack}.
     \item[Polling]\hfill \\
         The second notification mechanism available in AD is directly polling the AD directory service for changes.
         There are two types of polling available. Polling using Directory Synchronisation control, which is an LDAP server extension that allows to check for changes since a previous state,
-        while the other type -- querying using a special uSNChanged attribute -- is used when Directory Synchronisation is unavailable or inefficient\cite{ADtrack}.
+        while the other type -- querying using a special uSNChanged attribute -- is used when Directory Synchronisation is unavailable or inefficient \cite{ADtrack}.
 \end{description}
 
-These mechanisms are, however, primarily used to mantain consistency of data between the AD directory service and other applications\cite{ADtrack}.
-As such there is one additional mechanism that can be used not only with AD, but generally with any application running on a Windows operating system and that is \textbf{Event Tracing}(ET)\cite{ADtrace}. \\
+These mechanisms are, however, primarily used to mantain consistency of data between the AD directory service and other applications \cite{ADtrack}.
+As such there is one additional mechanism that can be used not only with AD, but generally with any application running on a Windows operating system and that is \textbf{Event Tracing}(ET) \cite{ADtrace}. \\
 ET is a mechanism that allows for application defined events to be logged into a log file and optionally recieved by other applications in real time.
 ET has three major components:%, as can be seen in figure \ref{fig:adTracing}:
 \textbf{controllers}, that control the ET sessions, \textbf{providers} that write events into a ET session and \textbf{consumers} which consume one or more event sessions either directly or from a log file.
@@ -225,8 +225,8 @@ or failed access attempts to secured objects. \\
 Additionaly, while researching Active Directory's notification mechanisms a specific use case for user written scripts came up repeatedly and that is \textbf{password expiry notifications}.
 As AD notifies the user of this act only as he tries to log in with his expired password, said scripts monitored the password expiry time by using a polling mechanism for the expiry attribute and notified the user directly via email.
 As such notification on password expiration should be one of the primary use cases of FreeIPA's notification system.
-However, as being notified on every login/logout or group membership change would be unnecessary and maybe even bothersome, the system should instead notify on action with possibly malicious intent,
-eg. \textbf{repeating login attempts} or \textbf{enrolling of a user into a highly priviledged group} (admins, sales, etc.).
+However, as being notified on every login/logout or group membership change would be unnecessary and maybe even bothersome, the system should instead notify on an action with possibly malicious intent,
+eg. \textbf{repeated login attempts} or the \textbf{addition of a user into a highly priviledged group} (admins, sales, etc.).
 \section{FreeIPA Use Cases}
 This section describes the use cases as suggested by FreeIPA's community. \\
 Some of the use cases proposed by the community in the project's specification intersect with use cases resulting from the analysis of Active Directory's use cases (user password expiration, group membership changes and repeating login attempts) in the previous section.
@@ -280,16 +280,24 @@ The D-Bus message system is a communication mechanism between processes running 
 which is one of the reason thats make it so attractive to be used as the transport medium for notifications in FreeIPA.
 The architecture of the D-Bus system is quite similar to Microsoft's Event Tracing, with the difference of D-Bus not logging sent messages in a file.
 The architecture consists of \textbf{clients}, who are each sending and recieving messages and a \textbf{dbus daemon} running the actual bus.
-D-Bus messages are transported over the bus by the dbus daemon, to which any number of processes can be connected at any given time\cite{dbusWeb}. \\
+D-Bus messages are transported over the bus by the dbus daemon, to which any number of processes can be connected at any given time \cite{dbusWeb}. \\
 D-Bus also has APIs (bindings) written in a number of languages, including the \textbf{C and Python languages} used by 389DS and ipalib framework, respectively, for both the sending and recieving side.
 Together with the bus being able to send messages from multiple sources, to multiple recievers, this allows D-Bus to be used with any of previously mentioned sender placements, including the hybrid one. \\
 There were some concerns that by using D-Bus, any change to the data sent to the recievers would mean the need to rewrite the reciever to accomodate to the changes made.
 However, using the Python bindings and its argument type discovery function, it should be possible for the reciever to work even after the changes have been introduced to the senders.
-In case the reciever is written in another lower-level binding, the reciever will have to be editted accordingly. \\
+In case the reciever is written in another lower-level binding, the reciever will have to be editted accordingly, but that is to be expected. \\
 To accomodate for some of the use cases proposed in chapter \ref{chp:anal}, a \textbf{lightweight monitoring daemon} will designed and implemented to be used to check the expiry date of users' passwords and certificates
 and send notifications to the bus when necessary. \\
-Figure \ref{fig:arch} shows the resulting notification system architecture using D-Bus as the method of transfer.
+%Figure \ref{fig:arch} shows the resulting notification system architecture using D-Bus as the method of transfer.
 
 \chapter{Conclusion}
+The aim of this thesis was to introduce the reader to the FreeIPA identity management solution, its components and management framework, and its need for a notification system that would allow for a better administration.
+The FreeIPA project was then compared to another identity management system, for which Microsoft's Active Directory was selected, with focus on the analysis of its notification mechanisms and cases in which they are used.
+This has however proven to be quite a difficult task as the uses of Active Directory's notifications were found to be quite limited.\\
+Additionaly an early look on the coming design of FreeIPA's notification was presented, mainly focusing on placement of notification sending parts of the system and the way of transport of those notifications.
+As part of describing the design decisions behind the transport of notifications, the D-Bus message system was introduced to the reader.\\
+With this task complete, the author will now discuss the results presented in this thesis with the FreeIPA community, choose which use cases to use in the final system based on their feedback and after that focus on completing its design.\\
+Another very important task is the testing of effects of various sender placements on the performance of FreeIPA and its components, as described in chapter \ref{chp:appDesign}.
+This testing will be worked upon in tandem with the design of the notification sending part of the system and is expected to have a strong influence on the way the system will be designed.
 
 %=========================================================================
