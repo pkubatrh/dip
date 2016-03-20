@@ -9,8 +9,9 @@ However, with the dawn of the industrial age people would be moving to cities, c
 their identities and duties. At first, this was done using paper documents stored somewhere in the factory, but this solution proved to be increasingly difficult as sorting and searching through these documents had to be done manually and this took a lot of time. \\
 With the advent of computers, this problem was solved by storing the identities of employees into databases or directory servers, from which they could be retrieved easily if needed.
 As the factories turned into companies, spanning multiple buildings, countries, or even continents, and computers becoming smaller, more powerful and generally available, it was important to manage stored identities
-and control which parts of the system the company's employees could access given their role using information management software. As a single unwanted change in this identity management could even prove fatal to the whole network, one of the most important parts a identity management system are the notifications of such changes.\\
-The main topic of this thesis are these notification systems and mechanisms in identity management software, specifically their potential implementation in the FreeIPA project.
+and control which parts of the system the company's employees could access given their role using information management software. As a single unwanted change in this identity management could even prove fatal to the whole network, one of the most important parts a identity management system are the notifications of such changes.
+These notifications can be then used to respond to the event by the administrator or, more importantly, another automated system.\\
+The main topic of this thesis are these notification systems and mechanisms in identity management software, specifically their implementation in the FreeIPA project focusing largely on interopability with third party software.
 Chapter \ref{chp:freeipa} will be introducing the reader to the FreeIPA project and its components, while chapter \ref{chp:ad} compares FreeIPA to Microsoft's Active Directory with emphasis on notification mechanisms.
 Chapter \ref{chp:anal} will be looking at the proposed use cases for the notification system and, last but not least, chapter \ref{chp:appDesign} will tackle the issues of notification sending function placement and method of transfer, as well as providing an early design of the system.
 
@@ -22,13 +23,13 @@ FreeIPA (where IPA stands for Identity, Policy and Audit) is an open-source secu
 The project itself combines a number of various existing open-source technologies to achieve the goal of providing centralized authentication and authorization, as well as storing important account information like users or group memberships.
 FreeIPA also aims to provide easy management and setup of a domain controller which would otherwise be very difficult by using the same components on your own.
 
-In this chapter will briefly introduce some of the components FreeIPA uses and describe the architecture of the resulting FreeIPA server solution, including the posibilities of extending the project.
+This chapter will briefly introduce some of the components FreeIPA uses and describe the architecture of the resulting FreeIPA server solution, including the posibilities of extending the project.
 
 \section{Directory Server}
 FreeIPA's directory service is the foundation of the project as it stores various information on behalf of all of FreeIPA's components.
 It also plays a big role in authentication and authorization using Kerberos which will be presented in the next section.
 
-The LDAP protocol \cite{ldapRFC} is used as a means of communication with the server and the data itself is stored in a Directory Information Tree (DIT) which is a tree-like data structure.
+The LDAP protocol \cite{ldapRFC} is used as a mean of communication with the server and the data itself is stored in a Directory Information Tree (DIT) which is a tree-like data structure.
 An example of a DIT structure can be seen in figure \ref{fig:dit}.
 
 \begin{figure}[!ht]
@@ -38,6 +39,7 @@ An example of a DIT structure can be seen in figure \ref{fig:dit}.
     \label{fig:dit}
 \end{figure}
 
+\clearpage
 LDAP provides several operations to use with the server \cite{ldapRFC}:
 
 \begin{itemize}
@@ -51,7 +53,7 @@ The actual LDAP compatible server contained in FreeIPA is implemented using the 
 % TODO: ACLs
 
 \section{Kerberos}
-Kerberos \cite{kerbRFC} is a network authentication protocol that uses symmetric encryption using a pre-shared key to authenticate the client to a network service (and vice versa) via an insecure connection using a trusted third party service called a Key Distribution Center (KDC). \\
+Kerberos \cite{kerbRFC} is a network authentication protocol that uses symmetric encryption using a pre-shared key to authenticate a client to a network service (and vice versa) via an insecure connection using a trusted third party service called a Key Distribution Center (KDC). \\
 The resulting communication is secure because no secret keys are transported over the network in plaintext format as the KDC already contains a database of credentials for users and services in the Kerberos realm. \\
 
 \begin{figure}[!ht]
@@ -67,7 +69,7 @@ The process of authenticating the user to a network service is shown in figure \
     \item The AS then checks the database to make sure the user exists and sends back a randomly generated session key to be used to encrypt communication with another service called a Ticket-Granting Service (TGS) encrypted with the user's secret key.
     \item The AS also generates a set of credentials called a Ticket-Granting Ticket (TGT) which includes the previously generated session key and is encrypted by the secret key of the TGS.
     \item After recieving the first message the client decrypts it using his secret key. This is the only time the user's key is actually used. The TGT which the client can't decrypt himself is saved in a cache on the client's side to be used later to setup a session with the TGS. At this point the user is authenticated to the Kerberos realm and doesn't have to input his secret key again for a set amount of time (commonly 10-24 hours).
-    \item When the user wants to authenticate agains a service in the Kerberos realm he just has to ask the TGS to send him a ticket.
+    \item When the user wants to authenticate agains a service in the Kerberos realm he just has to ask the TGS to send him a ticket. This request is encrypted using the session key created in previous two steps.
     \item The user then authenticates to the chosen service using this ticket without the need for his secret key.
 \end{enumerate}
 
@@ -135,7 +137,8 @@ Callbacks are user-defined functions that are called at various stages of exectu
     \item[Interactive callback]\hfill \\Allows a command to decide if additional parameters should be requested from the user.
 \end{description}
 \subsection{Extending the Directory Server}
-The 389 DS used in the FreeIPA project has only one way of creating extensions and that is using server plug-ins.
+The 389 DS used in the FreeIPA project has two ways of creating extensions for its operations, first one achieved by writing a server plug-in, while the second one uses LDAP's Content Synchronization Operation protocol.
+\subsubsection{Server Plug-ins}
 There are several types of plug-ins that can be used when trying to extend the directory server \cite{extLDAP}:
 \begin{description}
     \item[Pre operation]\hfill \\A pre operation plug-in is executed before starting the LDAP operation. Mostly used for data validation.
@@ -149,11 +152,19 @@ One can see that there are some similarities to callbacks of ipalib's extensions
 differing only in when they are called. While pre and post callbacks are bound to a specific method of a specific command object (eg. before or after executing a user-add command),
 the pre and post operations plug-ins are bound to an LDAP operation and as such are run much more frequently.
 
+\subsubsection{Content Synchronization Operation}
+The Content Synchronization Operation (syncrepl) is an extension of the existing search operation provided by LDAP and is mostly used, as its name implies, as a mean of directory content synchronization across different applications.
+The operation can be configured to provide a client with changes made to a subtree of a DIT and can be used similarly to 389DS's pre/post operations without the need to extend the whole add/modify/delete operation.
+As syncrepl extends the search operation the client can use its content control attributes to specify the content changes it wants to recieve, namely base DN and search scope to control the scope of the operation and filter
+to further specify which entries' changes the client is interested in.\\
+After using the syncrepl operation (with refreshAndPersist mode) the client is sent initial content located in the DIT after which the server will only send notifications about changes within the tracked content. Updates in the DIT can generate add, modify and delete result messages according to the changes made and
+upon recieving these changes the client has to determine the differences by himself as the server will send all of the entry's attributes on its modification (in case of add or modify state change) or none at all (in case of delete state change).
+
 \chapter{Active Directory}
 \label{chp:ad}
 
 \section{Structure and Components}
-This section is based on the official documentation for Active Directory \cite{ADoverview}.\\
+This section is based on the official documentation for Active Directory (AD) \cite{ADoverview}.\\
 AD is a distributed directory service used by the Microsoft Windows Server operating systems and, while similar in the components used, is quite different to the FreeIPA project.\\
 Objects located in a AD organized network are structured into a logical structure, the basis of which form forests and domains. \\
 \textbf{Forests} are the security boundaries of the logical structure and can be structured to provide data and service autonomy and isolation, removing the dependency on physical topology. \\
@@ -168,7 +179,7 @@ This logical structure can also be used to control access to data for each domai
 \end{figure}
 
 Each domain is connected to one or more \textbf{domain controllers}. A domain controller is a service that stores directory data and manages user and domain interactions.
-Each domain controller consists of a \textbf{schema}, which defines objects and attributes that can be store in the directory, a \textbf{data store}, which managaes the storing and retrieving of data, and the actual \textbf{database}.
+Each domain controller consists of a \textbf{schema}, which defines objects and attributes that can be store in the directory, a \textbf{data store}, which manages the storing and retrieving of data, and the actual \textbf{database}.
 The data store uses a number of interfaces to access stored data as can be seen in figure \ref{fig:adController}, one of which is the same protocol as the 389DS uses in FreeIPA -- LDAP.
 
 \begin{figure}[!ht]
@@ -188,7 +199,7 @@ The following mechanisms are available for users of AD directory service:
 
 \begin{description}
     \item[Change Notifications]\hfill \\
-        This mechanism allows for a client to register with a domain controller to recieve notifications for changes in the AD domain service. The notification control is specified in a LDAP asynchronou search
+        This mechanism allows for a client to register with a domain controller to recieve notifications for changes in the AD domain service. The notification control is specified in a LDAP asynchronous search
         operation. \\
         The user can define a number of search parameters: scope, to monitor just the object or its immediate children, filter, which allows for object filtering and
         attributes, a list of the changed object's attributes that will be returned \cite{ADtrack}.
@@ -223,7 +234,7 @@ When it comes to the general event tracing mechanism of the Microsoft Windows Se
 One of the most interesting of these logs is the \textbf{security event log}. This session logs various security related issues such as every successful/failed login attempts, group membership changes
 or failed access attempts to secured objects. \\
 Additionaly, while researching Active Directory's notification mechanisms a specific use case for user written scripts came up repeatedly and that is \textbf{password expiry notifications}.
-As AD notifies the user of this act only as he tries to log in with his expired password, said scripts monitored the password expiry time by using a polling mechanism for the expiry attribute and notified the user directly via email.
+As AD notifies the user of this fact only as he tries to log in with his expired password, said scripts monitored the password expiry time by using a polling mechanism for the expiry attribute and notified the user directly via email.
 As such notification on password expiration should be one of the primary use cases of FreeIPA's notification system.
 However, as being notified on every login/logout or group membership change would be unnecessary and maybe even bothersome, the system should instead notify on an action with possibly malicious intent,
 eg. \textbf{repeated login attempts} or the \textbf{addition of a user into a highly priviledged group} (admins, sales, etc.).
@@ -239,11 +250,9 @@ Use cases not yet mentioned are as follows:
     \item[Certificate creation/expiry]\hfill \\
         As the Certmonger client-side daemon already takes care of monitoring certificate expiry and optionally their renewal, this use case would be mainly about sending a notice to the concerned groups
         about the impending situation. However, in environments not running Certmonger on the client machines, it could be used to connect to another automated renewal system.
-    \item[DNS list synchronization]\hfill \\
-        Another use for notifications would be synchronizing the reslov.conf file containing the list of current DNS servers with the list of FreeIPA replicas with a running DNS service.
 \end{description}
 
-\chapter{Application Design}
+\chapter{System Design}
 \label{chp:appDesign}
 In this chapter the author tackles one of the most difficult questions to answer -- from where and through what means FreeIPA's notifications should be sent, resulting in the basis of a design for the actual notifiaction system.
 \section{Sender Placement}
