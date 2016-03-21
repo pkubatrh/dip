@@ -153,13 +153,14 @@ differing only in when they are called. While pre and post callbacks are bound t
 the pre and post operations plug-ins are bound to an LDAP operation and as such are run much more frequently.
 
 \subsubsection{Content Synchronization Operation}
+\label{subsec:syncrepl}
 The Content Synchronization Operation (syncrepl) is an extension of the existing search operation provided by LDAP and is mostly used, as its name implies, as a mean of directory content synchronization across different applications.
 The operation can be configured to provide a client with changes made to a subtree of a DIT and can be used similarly to 389DS's pre/post operations without the need to extend the whole add/modify/delete operation.
 As syncrepl extends the search operation the client can use its content control attributes to specify the content changes it wants to recieve, namely base DN and search scope to control the scope of the operation and filter
 to further specify which entries' changes the client is interested in.\\
 After using the syncrepl operation (with refreshAndPersist mode) the client is sent initial content located in the DIT after which the server will only send notifications about changes within the tracked content. Updates in the DIT can generate add, modify and delete result messages according to the changes made and
-upon recieving these changes the client has to determine the differences by himself as the server will send all of the entry's attributes on its modification (in case of add or modify state change) or none at all (in case of delete state change).
-
+upon recieving these changes the client has to determine the differences by himself as the server will send all of the entry's attributes on its modification (in case of add or modify state change) or none at all (in case of delete state change).\\
+Syncrepl also offers a polling (refreshOnly) mode, which allows the client to poll for changes at his own discretion. This mode however will not be used in this thesis and is thus only mentioned for the sake of completeness.
 \chapter{Active Directory}
 \label{chp:ad}
 
@@ -202,7 +203,9 @@ The following mechanisms are available for users of AD directory service:
         This mechanism allows for a client to register with a domain controller to recieve notifications for changes in the AD domain service. The notification control is specified in a LDAP asynchronous search
         operation. \\
         The user can define a number of search parameters: scope, to monitor just the object or its immediate children, filter, which allows for object filtering and
-        attributes, a list of the changed object's attributes that will be returned \cite{ADtrack}.
+        attributes, a list of the changed object's attributes that will be returned \cite{ADtrack}.\\
+        This mechanism is very similar to the syncrepl operation described in \ref{subsec:syncrepl}, the only difference being that AD allows the client to configure which attributes of the object he wants returned
+        while syncrepl only returns all of the attributes.
     \item[Polling]\hfill \\
         The second notification mechanism available in AD is directly polling the AD directory service for changes.
         There are two types of polling available. Polling using Directory Synchronisation control, which is an LDAP server extension that allows to check for changes since a previous state,
@@ -257,7 +260,7 @@ Use cases not yet mentioned are as follows:
 In this chapter the author tackles one of the most difficult questions to answer -- from where and through what means FreeIPA's notifications should be sent, resulting in the basis of a design for the actual notifiaction system.
 \section{Sender Placement}
 Given the current extensibility of the project as described in section \ref{sec:ipaExt},
-there are three possible general placements that can be used:
+there are four possible general placements that can be used:
 
 \begin{enumerate}
     \item Notifications sent directly from the 389DS would allow for the notifications to be delivered even when using an LDAP client different from the FreeIPA client which is apparently quite common.
@@ -265,7 +268,10 @@ there are three possible general placements that can be used:
     \item Notification senders located in the ipalib framework would allow for more precise calls of notification sending methods and possibly better performance.
     This approach would also provide the user with the ability to send notifications that would not be limited to changes in the 389DS.
     \item A hybrid approach that combines the previous two approaches and thus adds senders to both the 389DS and the ipalib framework for different operations depending on the severity of hits on performance.
+    \item A notification sending extension located in the ipalib framework together with a simple syncrepl using monitoring daemon would have the same advantages as the hybrid plug-in approach without influencing
+    the 389DS directly.
 \end{enumerate}
+\clearpage
 
 While there are no ready-made recievers contained in Active Directory that could help with the choice of approach, it still offers valuable information on what properties the receivers (and senders) should have:
 
@@ -278,26 +284,37 @@ While there are no ready-made recievers contained in Active Directory that could
         or if he wants to check for changes himself periodically.
 \end{description}
 
-Given the analysis of AD's notification mechanisms, the author currently opts for the \textbf{hybrid approach} with a receiver defined by the user.
-However, further testing will be needed to see if this approach is possible when it comes to hits in performance as a result of introducing the notification plug-ins.
-
 \section{Method of Transfer}
 
 There are many different protocols that can be used for the actual notification transfer, like the Advanced Message Queuing Protocol or Fedora's own Fedora Infrastructure Message Bus,
 however the \textbf{D-Bus message system} has been chosen by the author as the method of transfer.\\
 The D-Bus message system is a communication mechanism between processes running on the same host that is present on nearly any Linux operating system,
 which is one of the reason thats make it so attractive to be used as the transport medium for notifications in FreeIPA.
-The architecture of the D-Bus system is quite similar to Microsoft's Event Tracing, with the difference of D-Bus not logging sent messages in a file.
-The architecture consists of \textbf{clients}, who are each sending and recieving messages and a \textbf{dbus daemon} running the actual bus.
+The architecture of the D-Bus system is quite similar to Microsoft's Event Tracing mechanism, with the difference of D-Bus not logging sent messages in a file.
+The architecture consists of a \textbf{dbus daemon} running the actual bus and individual \textbf{processes}, who can each send and recieve messages over the bus.
 D-Bus messages are transported over the bus by the dbus daemon, to which any number of processes can be connected at any given time \cite{dbusWeb}. \\
+D-Bus offers two different way to send messages between processes:
+\begin{description}
+    \item[Method calls]\hfill \\
+        The communication using method calls over D-Bus occurs between exactly two processes, one of which takes on the role of the server (exporting methods), while the other is a client (calling methods).
+        This way of message transfer allows for a reply to be sent back to the server by the client. This reply could be used as a way of detwrmining whether the notification-related action on the recieving end
+        was carried out without any issues and log the resulting error codes and messages if there are any.\\
+    \item[Signals]\hfill \\
+        Using signals as the way of communication it is possible to send messages from a single server process to any number of listening client processes. However, as the communication is only one-way
+        this means there is no way of replying back to the server after the client's signal handler finishes.
+\end{description}
 D-Bus also has APIs (bindings) written in a number of languages, including the \textbf{C and Python languages} used by 389DS and ipalib framework, respectively, for both the sending and recieving side.
 Together with the bus being able to send messages from multiple sources, to multiple recievers, this allows D-Bus to be used with any of previously mentioned sender placements, including the hybrid one. \\
 There were some concerns that by using D-Bus, any change to the data sent to the recievers would mean the need to rewrite the reciever to accomodate to the changes made.
 However, using the Python bindings and its argument type discovery function, it should be possible for the reciever to work even after the changes have been introduced to the senders.
 In case the reciever is written in another lower-level binding, the reciever will have to be editted accordingly, but that is to be expected. \\
-To accomodate for some of the use cases proposed in chapter \ref{chp:anal}, a \textbf{lightweight monitoring daemon} will designed and implemented to be used to check the expiry date of users' passwords and certificates
-and send notifications to the bus when necessary. \\
 %Figure \ref{fig:arch} shows the resulting notification system architecture using D-Bus as the method of transfer.
+
+\section{Monitoring Daemon}
+To accomodate for some of the use cases proposed in chapter \ref{chp:anal}, a \textbf{lightweight monitoring daemon} will be designed and implemented to be used to check the expiry date of users' passwords and certificates
+and send notifications to the bus when necessary. \\
+
+\Chapter{Performance Analysis}
 
 \chapter{Conclusion}
 The aim of this thesis was to introduce the reader to the FreeIPA identity management solution, its components and management framework, and its need for a notification system that would allow for a better administration.
