@@ -255,10 +255,12 @@ Use cases not yet mentioned are as follows:
         about the impending situation. However, in environments not running Certmonger on the client machines, it could be used to connect to another automated renewal system.
 \end{description}
 
-\chapter{System Design}
+\chapter{Notification System Design}
 \label{chp:appDesign}
-In this chapter the author tackles one of the most difficult questions to answer -- from where and through what means FreeIPA's notifications should be sent, resulting in the basis of a design for the actual notifiaction system.
+In this section the author introduces some of the possible approaches for designing a notification sending system in FreeIPA, discussing their positives and negatives while deciding on the details
+of the eventual design of the system.
 \section{Sender Placement}
+\label{sec:sendPlace}
 Given the current extensibility of the project as described in section \ref{sec:ipaExt},
 there are four possible general placements that can be used:
 
@@ -284,7 +286,9 @@ While there are no ready-made recievers contained in Active Directory that could
         or if he wants to check for changes himself periodically.
 \end{description}
 
-\section{Method of Transfer}
+
+
+\section{Method of Communication}
 
 There are many different protocols that can be used for the actual notification transfer, like the Advanced Message Queuing Protocol or Fedora's own Fedora Infrastructure Message Bus,
 however the \textbf{D-Bus message system} has been chosen by the author as the method of transfer.\\
@@ -297,12 +301,15 @@ D-Bus offers two different way to send messages between processes:
 \begin{description}
     \item[Method calls]\hfill \\
         The communication using method calls over D-Bus occurs between exactly two processes, one of which takes on the role of the server (exporting methods), while the other is a client (calling methods).
-        This way of message transfer allows for a reply to be sent back to the server by the client. This reply could be used as a way of detwrmining whether the notification-related action on the recieving end
+        This way of message transfer allows for a reply to be sent back to the server by the client. This reply could be used as a way to determine whether the notification-related action on the recieving end
         was carried out without any issues and log the resulting error codes and messages if there are any.\\
     \item[Signals]\hfill \\
         Using signals as the way of communication it is possible to send messages from a single server process to any number of listening client processes. However, as the communication is only one-way
         this means there is no way of replying back to the server after the client's signal handler finishes.
 \end{description}
+While using signals allows the process to broadcast messages, the decision which approach to use basically boils down whetether the sending side is interested in reacting to what happens on the recieving side or not,
+as the broadcasting ability can be emulated using a middle-man process to transform the method call into a signal if necessary. After discussing the question which approach to adopt with the FreeIPA community, the author has decided to use
+method calls with return values being used for logging purposes on behalf of FreeIPA. \\
 D-Bus also has APIs (bindings) written in a number of languages, including the \textbf{C and Python languages} used by 389DS and ipalib framework, respectively, for both the sending and recieving side.
 Together with the bus being able to send messages from multiple sources, to multiple recievers, this allows D-Bus to be used with any of previously mentioned sender placements, including the hybrid one. \\
 There were some concerns that by using D-Bus, any change to the data sent to the recievers would mean the need to rewrite the reciever to accomodate to the changes made.
@@ -310,11 +317,18 @@ However, using the Python bindings and its argument type discovery function, it 
 In case the reciever is written in another lower-level binding, the reciever will have to be editted accordingly, but that is to be expected. \\
 %Figure \ref{fig:arch} shows the resulting notification system architecture using D-Bus as the method of transfer.
 
-\section{Monitoring Daemon}
+\section{Performance Analysis}
+The directory server, being the heart of the whole FreeIPA project, is highly susceptible to performance hits which some of the approaches discussed \ref{sec:sendPlace} might introduce.
+With this in mind the author has implemented a basic suite of time measurement tests to map the difference between each of the approaches using minimalistic sender plug-ins located in the ipalib framework and the 389DS directory server.
+Both of these test plugins have been implemented using the respective APIs as described in \ref{sec:ipaExt}, and were designed as post operation plugins sending simple notifications to a reciever (also written in Python) using D-Bus method calls as the medium. \\
+The tests themselves have been implemented using Python as this allowed for them to be used directly with FreeIPA's ipalib framework, bypassing the overhead of its CLI interface. A total of three tests suites have been prepared --
+two for each of the basic approaches, ipalib and 389DS respectively, and a third one for time measurement of an unmodified version of FreeIPA. The result of these tests can be seen in table ??. \\
+
+\section{Monitoring Daemon Design}
 To accomodate for some of the use cases proposed in chapter \ref{chp:anal}, a \textbf{lightweight monitoring daemon} will be designed and implemented to be used to check the expiry date of users' passwords and certificates
 and send notifications to the bus when necessary. \\
 
-\Chapter{Performance Analysis}
+\chapter{Notification Reciever Design}
 
 \chapter{Conclusion}
 The aim of this thesis was to introduce the reader to the FreeIPA identity management solution, its components and management framework, and its need for a notification system that would allow for a better administration.
