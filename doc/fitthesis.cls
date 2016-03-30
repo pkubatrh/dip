@@ -2,7 +2,8 @@
 % FIT thesis
 % ----------------------------------------------------------------------------
 % (C) 2007 Zdenek Vasicek, 2008 Michal Bidlo
-% vim: set syntax=tex encoding=latin2:
+% ----------------------------------------------------------------------------
+% Å ablonu upravil: Ing. Jaroslav Dytrych, idytrych@fit.vutbr.cz
 % ----------------------------------------------------------------------------
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesClass{fitthesis}[2007/04/13 Sablona pro BP/DP]
@@ -12,6 +13,7 @@
 \newif\ifcover \let\ifcover\iffalse
 \newif\ifPrint \let\ifPrint\iffalse
 \newif\ifWis   \let\ifWis\iftrue
+\newif\ifzadani   \let\ifzadani\iffalse
 
 
 %-----------------------------------------------------------------------------
@@ -20,6 +22,7 @@
 \DeclareOption{english}{\let\ifczech\iffalse}
 \DeclareOption{cover}{\let\ifcover\iftrue}
 \DeclareOption{print}{\let\ifWis\iffalse \let\ifPrint\iftrue}
+\DeclareOption{zadani}{\let\ifzadani\iftrue}
 
 \DeclareOption*{}
 \ProcessOptions\relax
@@ -36,7 +39,10 @@
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage[czech,english]{babel}
-\usepackage[latin2]{inputenc} %kodovani
+\usepackage[utf8]{inputenc} %kodovani
+\usepackage[T1]{fontenc}
+\usepackage{cmap}
+\usepackage{url}
 \ifczech
   \main@language{czech}
 \else
@@ -46,7 +52,11 @@
   \usepackage{graphics}
   \usepackage{epsfig}
 \else % je to pdftex !
-  \usepackage[pdftex]{graphicx}
+  \ifzadani
+    \usepackage{pdfpages}
+  \else % neni potreba pdfpages
+    \usepackage[pdftex]{graphicx}
+  \fi
 \fi
 
 %-----------------------------------------------------------------------------
@@ -60,25 +70,23 @@
 %-----------------------------------------------------------------------------
 %Texty
 %-----------------------------------------------------------------------------
-\def\@vut@CS{Vysoké uèení technické v~Brnì}
+\def\@vut@CS{VysokÃ© uÄenÃ­ technickÃ© v~BrnÄ›}
 \def\@vut@EN{Brno University of Technology}
-\def\@fit@CS{Fakulta informaèních technologií}
+\def\@fit@CS{Fakulta informaÄnÃ­ch technologiÃ­}
 \def\@fit@EN{Faculty of Information Technology}
-\def\@author@CS{Autor práce}
+\def\@author@CS{Autor prÃ¡ce}
 \def\@author@EN{Author}
-\def\@supervisor@CS{Vedoucí práce}
-\def\@supervisor@EN{Supervisor}
-\def\@dep@CS{Ústav}
+\def\@dep@CS{Ãšstav}
 \def\@dep@EN{Department of}
 \def\@abstract@CS{Abstrakt}
 \def\@abstract@EN{Abstract}
-\def\@keywords@CS{Klíèová slova}
+\def\@keywords@CS{KlÃ­ÄovÃ¡ slova}
 \def\@keywords@EN{Keywords}
 \def\@cite@CS{Citace}
-\def\@copyright@CS{Tato práce vznikla jako ¹kolní dílo na Vysokém uèení technickém v Brnì, Fakultì informaèních technologií. 
-Práce je chránìna autorskım zákonem a její u¾ití bez udìlení oprávnìní autorem je nezákonné, s vıjimkou zákonem definovanıch pøípadù.}
-\def\@tdecl@CS{Prohlá¹ení}
-\def\@tackn@CS{Podìkování}
+\def\@copyright@CS{Tato prÃ¡ce vznikla jako Å¡kolnÃ­ dÃ­lo na VysokÃ©m uÄenÃ­ technickÃ©m v BrnÄ›, FakultÄ› informaÄnÃ­ch technologiÃ­. 
+PrÃ¡ce je chrÃ¡nÄ›na autorskÃ½m zÃ¡konem a jejÃ­ uÅ¾itÃ­ bez udÄ›lenÃ­ oprÃ¡vnÄ›nÃ­ autorem je nezÃ¡konnÃ©, s vÃ½jimkou zÃ¡konem definovanÃ½ch pÅ™Ã­padÅ¯.}
+\def\@tdecl@CS{ProhlÃ¡Å¡enÃ­}
+\def\@tackn@CS{PodÄ›kovÃ¡nÃ­}
 
 \newif\ifnasel
 \def\ifEqString#1#2#3#4{\def\testa{#1}\def\testb{#2}%
@@ -88,14 +96,22 @@ Práce je chránìna autorskım zákonem a její u¾ití bez udìlení oprávnìní autorem j
 %Vyber typu projektu
 \newcommand{\set@project}[1]{%
  \naselfalse
- \ifEqString{#1}{BP}{Bakaláøská práce}{\@projecttype@CS}%
+ \ifEqString{#1}{BP}{BakalÃ¡Å™skÃ¡ prÃ¡ce}{\@projecttype@CS}%
  \ifEqString{#1}{BP}{Bachelor's thesis}{\@projecttype@EN}%
- \ifEqString{#1}{SP}{Semestrální projekt}{\@projecttype@CS}%
+ \ifEqString{#1}{BP}{VedoucÃ­ prÃ¡ce}{\@supervisor@CS}%
+ \ifEqString{#1}{BP}{Supervisor}{\@supervisor@EN}%
+ \ifEqString{#1}{SP}{SemestrÃ¡lnÃ­ projekt}{\@projecttype@CS}%
  \ifEqString{#1}{SP}{Term project}{\@projecttype@EN}%
- \ifEqString{#1}{DP}{Diplomová práce}{\@projecttype@CS}%
+ \ifEqString{#1}{SP}{VedoucÃ­ prÃ¡ce}{\@supervisor@CS}%
+ \ifEqString{#1}{SP}{Supervisor}{\@supervisor@EN}%
+ \ifEqString{#1}{DP}{DiplomovÃ¡ prÃ¡ce}{\@projecttype@CS}%
  \ifEqString{#1}{DP}{Master's thesis}{\@projecttype@EN}%
- \ifEqString{#1}{DR}{Disertaèní práce}{\@projecttype@CS}%
+ \ifEqString{#1}{DP}{VedoucÃ­ prÃ¡ce}{\@supervisor@CS}%
+ \ifEqString{#1}{DP}{Supervisor}{\@supervisor@EN}%
+ \ifEqString{#1}{DR}{DisertaÄnÃ­ prÃ¡ce}{\@projecttype@CS}%
  \ifEqString{#1}{DR}{PhD thesis}{\@projecttype@EN}%
+ \ifEqString{#1}{DR}{Å kolitel}{\@supervisor@CS}%
+ \ifEqString{#1}{DR}{Supervisor}{\@supervisor@EN}%
  \ifnasel
  \else
    \typeout{Spatny typ projektu! Moznosti: BP, SP, DP, DR}\set@project{BP}
@@ -105,13 +121,13 @@ Práce je chránìna autorskım zákonem a její u¾ití bez udìlení oprávnìní autorem j
 %Vyber ustavu
 \newcommand{\set@department}[1]{%
  \naselfalse
- \ifEqString{#1}{UIFS}{informaèních systémù}{\@department@CS}%
+ \ifEqString{#1}{UIFS}{informaÄnÃ­ch systÃ©mÅ¯}{\@department@CS}%
  \ifEqString{#1}{UIFS}{Information Systems}{\@department@EN}%
- \ifEqString{#1}{UPSY}{poèítaèovıch systémù}{\@department@CS}%
+ \ifEqString{#1}{UPSY}{poÄÃ­taÄovÃ½ch systÃ©mÅ¯}{\@department@CS}%
  \ifEqString{#1}{UPSY}{Computer Systems}{\@department@EN}%
- \ifEqString{#1}{UITS}{inteligentních systémù}{\@department@CS}%
+ \ifEqString{#1}{UITS}{inteligentnÃ­ch systÃ©mÅ¯}{\@department@CS}%
  \ifEqString{#1}{UITS}{Intelligent Systems}{\@department@EN}%
- \ifEqString{#1}{UPGM}{poèítaèové grafiky a multimédií}{\@department@CS}%
+ \ifEqString{#1}{UPGM}{poÄÃ­taÄovÃ© grafiky a multimÃ©diÃ­}{\@department@CS}%
  \ifEqString{#1}{UPGM}{Computer Graphics and Multimedia}{\@department@EN}%
  \ifnasel
  \else
@@ -158,7 +174,7 @@ Práce je chránìna autorskım zákonem a její u¾ití bez udìlení oprávnìní autorem j
 
 %Vychozi hodnoty
 \setkeys{projinfo}{
-  title.cs={Název práce (èesky)},title.en={Název práce(anglicky)}, 
+  title.cs={NÃ¡zev prÃ¡ce (Äesky)},title.en={NÃ¡zev prÃ¡ce(anglicky)}, 
   date=\today, project=BP, department=UIFS, declaration=, 
   abstract.cs=, abstract.en=, keywords.cs=, keywords.en=,
   author=Jmeno Prijmeni, supervisor=Jmeno Prijmeni
@@ -193,46 +209,6 @@ Práce je chránìna autorskım zákonem a její u¾ití bez udìlení oprávnìní autorem j
 %bold
 \newcommand{\mktxt@b}[2]{\vbox{\setfontsize{#1}\noindent\bf#2}\vspace\mkspc}
 \newcommand{\mkuctxt}[2]{\vbox{\setfontsize{#1}\noindent\MakeUppercase{#2}}\vspace\mkspc}
-%-----------------------------------------------------------------------------
-%Desky \makecover
-%-----------------------------------------------------------------------------
-\newcommand\makecover{\thispagestyle{empty}\null%
-%===================================================
-\fontfamily{phv}\selectfont%
-%  
-\mkuctxt{24}{\@vut@CS}
-\mkuctxt{11}{\@vut@EN}
-
-\vspace{12mm}
-
-\mkuctxt{14}{\@fit@CS}
-\mkuctxt{14}{\@departmentname@CS}
-
-\vspace{4mm}
-
-\mkuctxt{11}{\@fit@EN}
-\mkuctxt{11}{\@departmentname@EN}
-
-\vfill
-
-\mkuctxt{18}{\@title} %Nazev prace v jazyce v jakem je napsana
-
-\vfill
-
-\mkuctxt{14}{\@projecttype@CS}
-\mkuctxt{10}{\@projecttype@EN}
-\vspace{5mm}
-
-\mktxt{14}{\MakeUppercase{\@author@CS} \hfill \get@author}
-\mkuctxt{10}{\@author@EN}
-
-\vspace{10mm}
-
-\mktxt{11}{BRNO \@year}
-
-%===================================================
-\newpage\fontfamily{\familydefault}\selectfont%
-}
 
 %-----------------------------------------------------------------------------
 %Abstrakt, klicovaslova \makeabstract
@@ -257,7 +233,7 @@ Práce je chránìna autorskım zákonem a její u¾ití bez udìlení oprávnìní autorem j
 \vfill
 
 \mktxt@b{16}{\@cite@CS}
-\noindent\@author: \@title, \MakeLowercase{\@projecttype@CS}, Brno, FIT VUT v~Brnì, \@year
+\noindent\@author: \@title, \MakeLowercase{\@projecttype@CS}, Brno, FIT VUT v~BrnÄ›, \@year
 %===================================================
 \newpage
 }
@@ -298,10 +274,9 @@ Práce je chránìna autorskım zákonem a její u¾ití bez udìlení oprávnìní autorem j
 %Uvodni stranky \maketitle
 %-----------------------------------------------------------------------------
 \renewcommand\maketitle{%
-\ifcover\makecover\fi%
 \thispagestyle{empty}\null%
 %=====================================================
-\fontfamily{phv}\selectfont%
+\fontfamily{qhv}\selectfont%
 \newsavebox{\@obrlogo}\newsavebox{\@rtext}\newlength{\@vyskartext}\newlength{\@vyskaobr}%
 
 \savebox{\@obrlogo}{\includegraphics[width=3.5cm,keepaspectratio]{fig/vut-zp2}}%logo VUT
@@ -346,6 +321,9 @@ Práce je chránìna autorskım zákonem a její u¾ití bez udìlení oprávnìní autorem j
 \vspace{10mm}
 
 \mktxt{11}{BRNO \@year}
+
+%zadani
+\ifzadani\includepdf[pages=-,offset=0.6cm -1.7cm]{zadani.pdf}\fi
 
 \newpage\fontfamily{\familydefault}\selectfont%
 %=================================================================================

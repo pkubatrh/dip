@@ -3,38 +3,52 @@
 % (c) 2008 Michal Bidlo
 % E-mail: bidlom AT fit vutbr cz
 %============================================================================
-% kodovaní: iso-8859-2 (zmena prikazem iconv, recode nebo cstocs)
+% kodovanÃ­: UTF-8 (zmena prikazem iconv, recode nebo cstocs)
 %----------------------------------------------------------------------------
-% zpracování: make, make pdf, make desky, make clean
-% pøipomínky posílejte na e-mail: bidlom AT fit.vutbr.cz
-% vim: set syntax=tex encoding=latin2:
+% zpracovÃ¡nÃ­: make, make pdf, make desky, make clean
 %============================================================================
-%\documentclass[cover]{fitthesis} % odevzdani do wisu - odkazy, na ktere se da klikat
-%\documentclass[cover,print]{fitthesis} % pro tisk - na odkazy se neda klikat
-%\documentclass[english,print]{fitthesis} % pro tisk - na odkazy se neda klikat
-%      \documentclass[english]{fitthesis}
+% Å ablonu upravil: Ing. Jaroslav Dytrych, idytrych@fit.vutbr.cz
+%============================================================================
+\documentclass[english]{fitthesis} % bez zadÃ¡nÃ­ - pro zaÄÃ¡tek prÃ¡ce, aby nebyl problÃ©m s pÅ™ekladem
+%\documentclass[zadani]{fitthesis} % odevzdani do wisu - odkazy jsou barevnÃ©
+%\documentclass[zadani,print]{fitthesis} % pro tisk - odkazy jsou ÄernÃ©
+%\documentclass[english,print]{fitthesis} % pro tisk - odkazy jsou ÄernÃ©
 % * Je-li prace psana v anglickem jazyce, je zapotrebi u tridy pouzit
 %   parametr english nasledovne:
-\documentclass[cover,english]{fitthesis}
-% * Neprejete-li si vysazet na prvni strane dokumentu desky, zruste
-%   parametr cover
+%      \documentclass[english]{fitthesis}
 
-% zde zvolime kodovani, ve kterem je napsan text prace
-% "latin2" pro iso8859-2 nebo "cp1250" pro windows-1250, "utf8" pro "utf-8"
-%\usepackage{ucs}
-\usepackage[latin2]{inputenc}
-\usepackage[T1, IL2]{fontenc}
+\usepackage[czech,english]{babel}
+\usepackage[utf8]{inputenc} %kodovani
+\usepackage[T1]{fontenc}
+\usepackage{cmap}
 \usepackage{url}
 \DeclareUrlCommand\url{\def\UrlLeft{<}\def\UrlRight{>} \urlstyle{tt}}
 
 %zde muzeme vlozit vlastni balicky
+\usepackage{listings}
+\usepackage[toc,page,header]{appendix}
+\RequirePackage{titletoc}
+\ifczech
+  \usepackage{ae}
+\fi
 
 \usepackage{placeins}
 
+%---rm---------------
+\renewcommand{\rmdefault}{lmr}%zavede Latin Modern Roman jako rm
+%---sf---------------
+\renewcommand{\sfdefault}{qhv}%zavede TeX Gyre Heros jako sf
+%---tt------------
+\renewcommand{\ttdefault}{lmtt}% zavede Latin Modern tt jako tt
+
+% vypne funkci novÃ© Å¡ablony, kterÃ¡ automaticky nahrazuje uvozovky,
+% aby nebyly provÃ¡dÄ›ny nevhodnÃ© nÃ¡hrady v popisech API apod.
+\csdoublequotesoff
+
 % =======================================================================
-% balíèek "hyperref" vytváøí klikací odkazy v pdf, pokud tedy pou¾ijeme pdflatex
-% problém je, ¾e balíèek hyperref musí bıt uveden jako poslední, tak¾e nemù¾e
-% bıt v ¹ablonì
+% balÃ­Äek "hyperref" vytvÃ¡Å™Ã­ klikacÃ­ odkazy v pdf, pokud tedy pouÅ¾ijeme pdflatex
+% problÃ©m je, Å¾e balÃ­Äek hyperref musÃ­ bÃ½t uveden jako poslednÃ­, takÅ¾e nemÅ¯Å¾e
+% bÃ½t v Å¡ablonÄ›
 \ifWis
 \ifx\pdfoutput\undefined % nejedeme pod pdflatexem
 \else
@@ -44,7 +58,19 @@
   \definecolor{anchors}{rgb}{1,0,0}
   \def\AnchorColor{anchors}
   \def\LinkColor{links}
-  \def\pdfBorderAttrs{/Border [0 0 0] }  % bez okrajù kolem odkazù
+  \def\pdfBorderAttrs{/Border [0 0 0] }  % bez okrajÅ¯ kolem odkazÅ¯
+  \pdfcompresslevel=9
+\fi
+\else % pro tisk budou odkazy, na kterÃ© se dÃ¡ klikat, ÄernÃ©
+\ifx\pdfoutput\undefined % nejedeme pod pdflatexem
+\else
+  \usepackage{color}
+  \usepackage[unicode,colorlinks,hyperindex,plainpages=false,pdftex,urlcolor=black,linkcolor=black,citecolor=black]{hyperref}
+  \definecolor{links}{rgb}{0,0,0}
+  \definecolor{anchors}{rgb}{0,0,0}
+  \def\AnchorColor{anchors}
+  \def\LinkColor{links}
+  \def\pdfBorderAttrs{/Border [0 0 0] } % bez okrajÅ¯ kolem odkazÅ¯
   \pdfcompresslevel=9
 \fi
 \fi
@@ -53,14 +79,14 @@
 %---------------------------------------------------------------------------
 \projectinfo{
   %Prace
-  project=SP,            %typ prace BP/SP/DP/DR
+  project=DP,            %typ prace BP/SP/DP/DR
   year=2015,             %rok
   date=\today,           %datum odevzdani
   %Nazev prace
-  title.cs={Obecnı notifikaèní systém pro projekt FreeIPA},  %nazev prace v cestine
+  title.cs={ObecnÃ½ notifikaÄnÃ­ systÃ©m pro projekt FreeIPA},  %nazev prace v cestine
   title.en={General Notification System for FreeIPA}, %nazev prace v anglictine
   %Autor
-  author={Petr Kubát},   %jmeno prijmeni autora
+  author={Petr KubÃ¡t},   %jmeno prijmeni autora
   author.title.p=Bc., %titul pred jmenem (nepovinne)
   %author.title.a=PhD, %titul za jmenem (nepovinne)
   %Ustav
@@ -69,39 +95,23 @@
   supervisor=Adam Rogalewicz, %jmeno prijmeni skolitele
   supervisor.title.p=Mgr.,   %titul pred jmenem (nepovinne)
   supervisor.title.a={Ph.D.},    %titul za jmenem (nepovinne)
-  %Klicova slova, abstrakty, prohlaseni a podekovani je mozne definovat
-  %bud pomoci nasledujicich parametru nebo pomoci vyhrazenych maker (viz dale)
   %===========================================================================
-  %Klicova slova
-  keywords.cs={LDAP, Active Directory, FreeIPA, Kerberos, DNS, Dogtag, oznámení, D-Bus, Python, C, správa identit}, %klicova slova v ceskem jazyce
-  keywords.en={LDAP, Active Directory, FreeIPA, Kerberos, DNS, Dogtag, notifications, D-Bus, Python, C, identity management}, %klicova slova v anglickem jazyce
-  %Abstract
-  abstract.cs={Tato práce se zabıva problematikou zasílání oznámení v øe¹eních pro správu identit. Ètenáøi jsou pøedstaveny dva takové sytémy, FreeIPA a Active Directory,
-  se zamìøením na existující mechanismy zasílání notifikací. Zároveò je také ukázána první verze návrhu systému zasílání oznámení pro pou¾ití v projektu FreeIPA}, % abstrakt v ceskem jazyce
-  abstract.en={This thesis describes the issue of notification sending in identity management solutions. The reader is introduced to the FreeIPA and Active Directory projects,
-  with focus on existing notification mechanisms. The author also presents an early look on the design of a notification system to be used in FreeIPA.}, % abstrakt v anglickem jazyce
-  %Prohlaseni
-  declaration={Prohla¹uji, ¾e jsem tuto diplomovou práci vypracoval samostatnì pod vedením pana Mgr. Adama Rogalewicze, Ph.D.},
-  %Podekovani (nepovinne)
-  acknowledgment={Rád bych podìkoval hlavnì panu Petru ©paèkovi za jeho trpìlivost pøi odborném vedení práce.} % nepovinne
 }
 
 %Abstrakt (cesky, anglicky)
-%\abstract[cs]{Do tohoto odstavce bude zapsán vıtah (abstrakt) práce v èeském jazyce.}
-%\abstract[en]{Do tohoto odstavce bude zapsán vıtah (abstrakt) práce v anglickém jazyce.}
-
+\abstract[cs]{Tato prÃ¡ce se zabÃ½va problematikou zasÃ­lÃ¡nÃ­ oznÃ¡menÃ­ v Å™eÅ¡enÃ­ch pro sprÃ¡vu identit. ÄŒtenÃ¡Å™i jsou pÅ™edstaveny dva takovÃ© sytÃ©my, FreeIPA a Active Directory,
+    se zamÄ›Å™enÃ­m na existujÃ­cÃ­ mechanismy zasÃ­lÃ¡nÃ­ notifikacÃ­. ZÃ¡roveÅˆ je takÃ© ukÃ¡zÃ¡na prvnÃ­ verze nÃ¡vrhu systÃ©mu zasÃ­lÃ¡nÃ­ oznÃ¡menÃ­ pro pouÅ¾itÃ­ v projektu FreeIPA} % abstrakt v ceskem jazyce
+\abstract[en]{This thesis describes the issue of notification sending in identity management solutions. The reader is introduced to the FreeIPA and Active Directory projects
+    with focus on existing notification mechanisms. The author also presents an early look on the design of a notification system to be used in FreeIPA.} % abstrakt v anglickem jazyce
 %Klicova slova (cesky, anglicky)
-%\keywords[cs]{Sem budou zapsána jednotlivá klíèová slova v èeském jazyce, oddìlená èárkami.}
-%\keywords[en]{Sem budou zapsána jednotlivá klíèová slova v anglickém jazyce, oddìlená èárkami.}
+\keywords[cs]{LDAP, Active Directory, FreeIPA, Kerberos, DNS, Dogtag, oznÃ¡menÃ­, D-Bus, Python, C, sprÃ¡va identit} %klicova slova v ceskem jazyce
+\keywords[en]{LDAP, Active Directory, FreeIPA, Kerberos, DNS, Dogtag, notifications, D-Bus, Python, C, identity management} %klicova slova v anglickem jazyce
 
 %Prohlaseni
-%\declaration{Prohla¹uji, ¾e jsem tuto bakaláøskou práci vypracoval samostatnì pod vedením pana X...
-%Dal¹í informace mi poskytli...
-%Uvedl jsem v¹echny literární prameny a publikace, ze kterıch jsem èerpal.}
+\declaration{ProhlaÅ¡uji, Å¾e jsem tuto diplomovou prÃ¡ci vypracoval samostatnÄ› pod vedenÃ­m pana Mgr. Adama Rogalewicze, Ph.D.}
 
 %Podekovani (nepovinne)
-%\acknowledgment{V této sekci je mo¾no uvést podìkování vedoucímu práce a tìm, kteøí poskytli odbornou pomoc
-%(externí zadavatel, konzultant, apod.).}
+\acknowledgment{RÃ¡d bych podÄ›koval hlavnÄ› panu Petru Å paÄkovi za jeho trpÄ›livost pÅ™i odbornÃ©m vedenÃ­ prÃ¡ce.} % nepovinne
 
 \begin{document}
   % Vysazeni titulnich stran
@@ -112,7 +122,13 @@
   \tableofcontents
 
   % Seznam obrazku a tabulek (pokud prace obsahuje velke mnozstvi obrazku, tak se to hodi)
+\ifczech
+  \renewcommand\listfigurename{Seznam obrÃ¡zkÅ¯}
+\fi
   % \listoffigures
+\ifczech
+  \renewcommand\listtablename{Seznam tabulek}
+\fi
   % \listoftables
 
   % Text prace
@@ -122,16 +138,38 @@
   % Pouzita literatura
   % ----------------------------------------------
 \ifczech
+  \makeatletter
+  \def\@openbib@code{\addcontentsline{toc}{chapter}{Literatura}}
+  \makeatother
   \bibliographystyle{czechiso}
 \else
+  \makeatletter
+  \def\@openbib@code{\addcontentsline{toc}{chapter}{Literature}}
+  \makeatother
   \bibliographystyle{plain}
 %  \bibliographystyle{alpha}
 \fi
   \begin{flushleft}
-%  \nocite{*}
   \bibliography{literatura} % viz. literatura.bib
   \end{flushleft}
-  \appendix
 
+  % Prilohy
+  % ---------------------------------------------
+  \appendix
+\ifczech
+  \renewcommand{\appendixpagename}{PÅ™Ã­lohy}
+  \renewcommand{\appendixtocname}{PÅ™Ã­lohy}
+  \renewcommand{\appendixname}{PÅ™Ã­loha}
+\fi
+  \appendixpage
+\ifczech
+  \section*{Seznam pÅ™Ã­loh}
+  \addcontentsline{toc}{section}{Seznam pÅ™Ã­loh}
+\else
+  \section*{List of Appendices}
+  \addcontentsline{toc}{section}{List of Appendices}
+\fi
+  \startcontents[chapters]
+  \printcontents[chapters]{l}{0}{\setcounter{tocdepth}{2}}
   \input{prilohy} % viz. prilohy.tex
 \end{document}
