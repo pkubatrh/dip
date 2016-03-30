@@ -307,6 +307,12 @@ D-Bus offers two different way to send messages between processes:
         Using signals as the way of communication it is possible to send messages from a single server process to any number of listening client processes. However, as the communication is only one-way
         this means there is no way of replying back to the server after the client's signal handler finishes.
 \end{description}
+\begin{figure}[!ht]
+    \centering
+        \includegraphics[scale=0.65]{fig/dbus}
+    \caption{D-Bus architecture}
+    \label{fig:dbus}
+\end{figure}
 While using signals allows the process to broadcast messages, the decision which approach to use basically boils down whetether the sending side is interested in reacting to what happens on the recieving side or not,
 as the broadcasting ability can be emulated using a middle-man process to transform the method call into a signal if necessary. After discussing the question which approach to adopt with the FreeIPA community, the author has decided to use
 method calls with return values being used for logging purposes on behalf of FreeIPA. \\
@@ -322,7 +328,23 @@ The directory server, being the heart of the whole FreeIPA project, is highly su
 With this in mind the author has implemented a basic suite of time measurement tests to map the difference between each of the approaches using minimalistic sender plug-ins located in the ipalib framework and the 389DS directory server.
 Both of these test plugins have been implemented using the respective APIs as described in \ref{sec:ipaExt}, and were designed as post operation plugins sending simple notifications to a reciever (also written in Python) using D-Bus method calls as the medium. \\
 The tests themselves have been implemented using Python as this allowed for them to be used directly with FreeIPA's ipalib framework, bypassing the overhead of its CLI interface. A total of three tests suites have been prepared --
-two for each of the basic approaches, ipalib and 389DS respectively, and a third one for time measurement of an unmodified version of FreeIPA. The result of these tests can be seen in table ??. \\
+two for each of the basic approaches, ipalib and 389DS respectively, and a third one for time measurement of an unmodified version of FreeIPA. The result of these tests can be seen in table \ref{tab:perf}. \\
+
+\begin{table}[]
+    \centering
+    \def\arraystretch{1.3}
+    \begin{tabular}{| l | c | c | c |}
+        \hline
+        \multicolumn{4}{| c |}{Results per 10 user objects} \\
+        \hline
+        & No plugin  & Ipalib  & 389DS \\ \hline
+        Mean & 4.51s & 4.70s & 4.59s \\ \hline
+        Std. Dev. & 0.36 & 0.36 & 0.41 \\ \hline
+        Difference & -- & 4.33\% & 1.87\% \\ \hline
+    \end{tabular}
+    \caption{User object creation test results}
+    \label{tab:perf}
+\end{table}
 
 \section{Monitoring Daemon Design}
 To accomodate for some of the use cases proposed in chapter \ref{chp:anal}, a \textbf{lightweight monitoring daemon} will be designed and implemented to be used to check the expiry date of users' passwords and certificates
